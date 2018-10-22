@@ -1,0 +1,25 @@
+name: basketball
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - numpy
+  - scipy
+  - scikit-learn
+  - ipython
+  - jupyter
+  - click
+  - tqdm
+  - pandas
+  - beautifulsoup4
+  - requests
+  - matplotlib
+  - twine
+  - flake8
+  - mypy
+  - pytest
+  - wheel
+  - pip
+  - pip:
+    - clickutil
+    - pollster
