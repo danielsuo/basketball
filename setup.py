@@ -16,6 +16,8 @@ setuptools.setup(
         "tqdm",
         "pandas",
         "beautifulsoup4",
+        "lxml",
+        "html5lib",
         "requests",
         "matplotlib",
         "clickutil",
