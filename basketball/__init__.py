@@ -33,7 +33,7 @@ def download_urls(urls, out_dir=out_dir, sleep=True):
 
         # Sleep for a random time
         if sleep:
-            time.sleep(random.randint(3, 10))
+            time.sleep(random.randint(3, 5))
 
 
 def parse_pages(pages, out_dir=out_dir):
