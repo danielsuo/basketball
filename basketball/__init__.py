@@ -36,6 +36,14 @@ def download_urls(urls, out_dir=out_dir, sleep=True):
             time.sleep(random.randint(3, 5))
 
 
+def download_urls_from_list(url_list)
+    with open(os.path.join(out_dir, url_list), "w") as file:
+        player_years = file.read().split()
+        urls = [os.path.join(base_url, url.lstrip(os.path.sep))
+                for url in player_years]
+        download_urls(urls)
+
+
 def parse_pages(pages, out_dir=out_dir):
     # TODO: Remove thead tr
     urls = []
@@ -76,20 +84,24 @@ def parse_player_indices():
 
 
 def download_player_pages():
-    with open(os.path.join(out_dir, "player_urls.txt"), "r") as file:
-        player_urls = file.read().split()
-        urls = [os.path.join(base_url, url.lstrip(os.path.sep))
-                for url in player_urls]
-        download_urls(urls)
+    download_urls_from_list("player_urls.txt")
 
 
 def parse_player_pages():
-    years = parse_pages(["player.html"], out_dir="tmp")
-    print(years)
+    with open(os.path.join(out_dir, "player_urls.txt"), "r") as file:
+        player_urls = file.read().split()
+        pages = [os.path.join(out_dir, os.path.basename(url))
+                 for url in player_urls]
+        years = parse_pages(pages)
+
+    with open(os.path.join(out_dir, "player_years.txt"), "r") as file:
+        file.write("\n".join(years))
+
+    print(len(years))
 
 
 def download_player_years():
-    pass
+    download_urls_from_list("player_years.txt")
 
 
 def parse_player_years():
@@ -107,6 +119,7 @@ def parse_player_years():
 
 __all__ = [
     "download_urls",
+    "download_urls_from_list",
     "parse_pages",
     "download_player_indices",
     "parse_player_indices",
