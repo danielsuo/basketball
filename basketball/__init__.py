@@ -36,11 +36,11 @@ def download_urls(urls, out_dir=out_dir, sleep=True):
             time.sleep(random.randint(3, 5))
 
 
-def download_urls_from_list(url_list)
+def download_urls_from_list(url_list):
     with open(os.path.join(out_dir, url_list), "w") as file:
-        player_years = file.read().split()
+        urls = file.read().split()
         urls = [os.path.join(base_url, url.lstrip(os.path.sep))
-                for url in player_years]
+                for url in urls]
         download_urls(urls)
 
 
@@ -90,7 +90,7 @@ def download_player_pages():
 def parse_player_pages():
     with open(os.path.join(out_dir, "player_urls.txt"), "r") as file:
         player_urls = file.read().split()
-        pages = [os.path.join(out_dir, os.path.basename(url))
+        pages = [os.path.basename(url)
                  for url in player_urls]
         years = parse_pages(pages)
 
