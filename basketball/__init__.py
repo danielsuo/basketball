@@ -94,7 +94,7 @@ def parse_player_pages():
                  for url in player_urls]
         years = parse_pages(pages)
 
-    with open(os.path.join(out_dir, "player_years.txt"), "r") as file:
+    with open(os.path.join(out_dir, "player_years.txt"), "w") as file:
         file.write("\n".join(years))
 
     print(len(years))
