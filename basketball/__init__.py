@@ -16,12 +16,14 @@ out_dir = "data/players"
 
 # TODO: Write update scripts
 # TODO: Investigate stat.nba.com advanced stats
+# TODO: Parallelize downloading and parsing
+# TODO: Stop being lazy and save intermediate files in a reasonable place
 # TODO: Make these functions not so incredibly terribad
 
 
 def download_urls(urls, out_dir=out_dir, sleep=True):
     for url in tqdm.tqdm(urls):
-        path = os.path.basename(url)
+        path = url.replace("/", "-")
         with open(os.path.join(out_dir, path), "w") as file:
             res = requests.get(
                 url,
@@ -37,7 +39,7 @@ def download_urls(urls, out_dir=out_dir, sleep=True):
 
 
 def download_urls_from_list(url_list):
-    with open(os.path.join(out_dir, url_list), "w") as file:
+    with open(os.path.join(out_dir, url_list), "r") as file:
         urls = file.read().split()
         urls = [os.path.join(base_url, url.lstrip(os.path.sep))
                 for url in urls]
@@ -48,7 +50,7 @@ def parse_pages(pages, out_dir=out_dir):
     # TODO: Remove thead tr
     urls = []
     for page in tqdm.tqdm(pages):
-        path = os.path.join(out_dir, page)
+        path = os.path.join(out_dir, page.replace("/", "-"))
         with open(path, "r") as file:
             try:
                 raw = file.read()
@@ -56,6 +58,7 @@ def parse_pages(pages, out_dir=out_dir):
                 rows = soup.findAll("tbody")[0].findAll("tr")
                 for row in rows:
                     link = row.findAll("a", href=True)[0]
+                    link = link["href"].replace(base_url, "")
                     urls.append(link["href"])
             except Exception as e:
                 pass
