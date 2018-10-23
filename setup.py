@@ -21,7 +21,6 @@ setuptools.setup(
         "requests",
         "matplotlib",
         "clickutil",
-        "pollster",
     ],
     extra_requires={
         "dev": [
