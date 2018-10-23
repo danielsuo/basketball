@@ -88,7 +88,11 @@ def parse_player_pages():
     print(years)
 
 
-def parse_player_year():
+def download_player_years():
+    pass
+
+
+def parse_player_years():
     path = "tmp/year.html"
     with open(path, "r") as file:
         # table = pandas.read_html(file.read())[0]
@@ -108,5 +112,6 @@ __all__ = [
     "parse_player_indices",
     "download_player_pages",
     "parse_player_pages",
-    "parse_player_year"
+    "download_player_years",
+    "parse_player_years"
 ]
