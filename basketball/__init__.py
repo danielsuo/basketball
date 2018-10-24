@@ -17,6 +17,7 @@ out_dir = "data/players"
 # TODO: Write update scripts
 # TODO: Investigate stat.nba.com advanced stats
 # TODO: Make these functions not so incredibly terribad
+# TODO: Aggregate stats together from different tables
 
 
 def download_urls(urls, out_dir=out_dir, sleep=True):
@@ -107,14 +108,23 @@ def download_player_years():
 def parse_player_years():
     path = "tmp/year.html"
     with open(path, "r") as file:
-        # table = pandas.read_html(file.read())[0]
-        # print(table)
-        raw = file.read()
-        raw.replace("<!--", "")
-        raw.replace("-->", "")
+        raw = file.read().split("\n")
+
+        # Hack city, hack hack city
+        raw = [line for line in raw if line != "<!--"]
+        raw = [line for line in raw if line != "-->"]
+        raw = "\n".join(raw)
         soup = bs4.BeautifulSoup(raw, "lxml")
-        tables = soup.findAll("tbody")
-        print(len(tables))
+        d = pandas.read_html(str(soup))
+        print(d[0])
+        print(len(d))
+        # tables = soup.findAll("tbody")
+        # print(type(tables[1]))
+        # print(type(str(tables[1])))
+
+        # for table in tables:
+            # data = pandas.read_html(str(table))
+            # print(data)
 
 
 __all__ = [
