@@ -3,6 +3,7 @@ import pathlib
 import string
 import random
 import time
+import urllib
 
 import requests
 import tqdm
@@ -17,22 +18,26 @@ out_dir = "data/players"
 # TODO: Write update scripts
 # TODO: Investigate stat.nba.com advanced stats
 # TODO: Parallelize downloading and parsing
-# TODO: Stop being lazy and save intermediate files in a reasonable place
 # TODO: Make these functions not so incredibly terribad
 # TODO: Aggregate stats together from different tables
 
 
 def download_urls(urls, out_dir=out_dir, sleep=True):
     for url in tqdm.tqdm(urls):
+        # TODO: Stop being lazy and save intermediate files in a reasonable place
+        url = urllib.parse.urlparse(url).path.lstrip(os.path.sep)
         path = url.replace("/", "-")
-        with open(os.path.join(out_dir, path), "w") as file:
+        with open(os.path.join(out_dir, path), "wb") as file:
             res = requests.get(
                 url,
                 headers={
                     "User-Agent": get_user_agent()
                 }
             )
-            file.write(res.content.decode("utf-8"))
+            try:
+                file.write(res.content)
+            except Exception as e:
+                print("Failed at {} with {}".format(url))
 
         # Sleep for a random time
         if sleep:
