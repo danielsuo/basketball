@@ -21,6 +21,9 @@ setuptools.setup(
         "requests",
         "matplotlib",
         "clickutil",
+        "matplotlib",
+        "seaborn",
+        "nba_py"
     ],
     extra_requires={
         "dev": [

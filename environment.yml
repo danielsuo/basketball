@@ -16,6 +16,7 @@ dependencies:
   - html5lib
   - requests
   - matplotlib
+  - seaborn
   - twine
   - flake8
   - mypy
@@ -24,3 +25,4 @@ dependencies:
   - pip
   - pip:
     - clickutil
+    - nba_py

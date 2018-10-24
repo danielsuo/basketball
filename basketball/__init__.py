@@ -1,18 +1,21 @@
 import os
 import pathlib
-import string
 import random
+import string
 import time
 import urllib
+from datetime import date
 
 import requests
 import tqdm
+
 import bs4
 import pandas
 
 from .user_agent import get_user_agent
 
 base_url = "https://www.basketball-reference.com"
+update_url = urllib.parse.urljoin(base_url, "boxscores/index.fcgi")
 out_dir = "data/players"
 
 # TODO: Write update scripts
@@ -20,20 +23,59 @@ out_dir = "data/players"
 # TODO: Parallelize downloading and parsing
 # TODO: Make these functions not so incredibly terribad
 # TODO: Aggregate stats together from different tables
+# TODO: Stop being lazy and save intermediate files in a reasonable place
+# TODO: Manage output directories better
+# TODO: Create database and insert (e.g., tinydb)
+
+
+def download_boxscores(
+    year=date.today().year, month=date.today().month, day=date.today().day
+):
+    params = {"year": year, "month": month, "day": day}
+
+    res = requests.get(update_url, params=params)
+
+    data = res.content.decode("utf-8")
+    soup = bs4.BeautifulSoup(data, "lxml")
+
+    urls = []
+    for link in soup.findAll("a", text="Box Score", href=True):
+        urls.append(link["href"])
+
+    urls = [os.path.join(base_url, url.lstrip(os.path.sep)) for url in urls]
+    print(urls)
+
+    download_urls(urls, out_dir="data/boxscores", sleep=False)
+
+
+def parse_boxscores(
+    year=date.today().year, month=date.today().month, day=date.today().day
+):
+    stamp = "{}{}{}".format(year, month, day)
+
+    tables = []
+    for path in os.listdir("data/boxscores"):
+        if stamp not in path:
+            continue
+        with open(os.path.join("data/boxscores", path), "rb") as file:
+            data = file.read().decode("utf-8")
+            # soup = bs4.BeautifulSoup(data, "lxml")
+            # soup.findAll
+            # tables = pandas.read_html(data)
+            tables.extend(pandas.read_html(data))
+
+    return tables
 
 
 def download_urls(urls, out_dir=out_dir, sleep=True):
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
     for url in tqdm.tqdm(urls):
-        # TODO: Stop being lazy and save intermediate files in a reasonable place
-        url = urllib.parse.urlparse(url).path.lstrip(os.path.sep)
-        path = url.replace("/", "-")
+        path = urllib.parse.urlparse(url).path.lstrip(os.path.sep)
+        path = path.replace("/", "-")
         with open(os.path.join(out_dir, path), "wb") as file:
-            res = requests.get(
-                url,
-                headers={
-                    "User-Agent": get_user_agent()
-                }
-            )
+            res = requests.get(url, headers={"User-Agent": get_user_agent()})
             try:
                 file.write(res.content)
             except Exception as e:
@@ -47,8 +89,7 @@ def download_urls(urls, out_dir=out_dir, sleep=True):
 def download_urls_from_list(url_list):
     with open(os.path.join(out_dir, url_list), "r") as file:
         urls = file.read().split()
-        urls = [os.path.join(base_url, url.lstrip(os.path.sep))
-                for url in urls]
+        urls = [os.path.join(base_url, url.lstrip(os.path.sep)) for url in urls]
         download_urls(urls)
 
 
@@ -78,8 +119,7 @@ def download_player_indices():
     """
     # TODO: Have some sensible way of updating user agent
     pathlib.Path(out_dir).mkdir(parents=True, exist_ok=True)
-    urls = [os.path.join(base_url, "players", c)
-            for c in string.ascii_lowercase]
+    urls = [os.path.join(base_url, "players", c) for c in string.ascii_lowercase]
     download_urls(urls, sleep=False)
 
 
@@ -99,8 +139,7 @@ def download_player_pages():
 def parse_player_pages():
     with open(os.path.join(out_dir, "player_urls.txt"), "r") as file:
         player_urls = file.read().split()
-        pages = [os.path.basename(url)
-                 for url in player_urls]
+        pages = [os.path.basename(url) for url in player_urls]
         years = parse_pages(pages)
 
     with open(os.path.join(out_dir, "player_years.txt"), "w") as file:
@@ -131,8 +170,8 @@ def parse_player_years():
         # print(type(str(tables[1])))
 
         # for table in tables:
-            # data = pandas.read_html(str(table))
-            # print(data)
+        # data = pandas.read_html(str(table))
+        # print(data)
 
 
 __all__ = [
@@ -144,5 +183,7 @@ __all__ = [
     "download_player_pages",
     "parse_player_pages",
     "download_player_years",
-    "parse_player_years"
+    "parse_player_years",
+    "download_boxscores",
+    "parse_boxscores",
 ]
